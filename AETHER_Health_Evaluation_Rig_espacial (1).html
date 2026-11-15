@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>AETHER · Health Evaluation Rig</title>
+<style>
+:root{color-scheme:dark;--bg:#070b1f;--card:rgba(20,28,68,.72);--tx:#eaeeff;--mut:#9aa6d6;--ac:#5ad1ff;--vi:#8b6dff;--on:#06122b;--ok:#2ee6a6;--wa:#ffb454;--ko:#ff6178;--bd:rgba(139,109,255,.28)}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.5 "Segoe UI",system-ui,sans-serif;color:var(--tx);padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);min-height:100vh;background-color:var(--bg);
+background-image:radial-gradient(60% 45% at 90% 0%,rgba(139,109,255,.32),transparent 70%),radial-gradient(55% 45% at 0% 100%,rgba(46,230,200,.16),transparent 70%),radial-gradient(40% 30% at 15% 10%,rgba(255,97,160,.12),transparent 70%),
+radial-gradient(1px 1px at 20px 30px,#fff,transparent),radial-gradient(1px 1px at 90px 120px,#cfd8ff,transparent),radial-gradient(1.6px 1.6px at 160px 60px,#fff,transparent),radial-gradient(1px 1px at 50px 170px,#ffe6b0,transparent),radial-gradient(1.3px 1.3px at 210px 150px,#bfe9ff,transparent);
+background-size:auto,auto,auto,230px 210px,260px 240px,310px 290px,190px 200px,350px 330px;background-attachment:fixed,fixed,fixed,scroll,scroll,scroll,scroll,scroll}
+h1,h2{font-family:Georgia,serif;font-weight:600;margin:0}
+header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--card);border-bottom:1px solid var(--bd);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+header h1{font-size:19px}
+select,input[type=text]{background:#0c1233;color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:7px 10px;font:inherit}
+nav{display:flex;gap:6px;overflow-x:auto;padding:12px 16px}
+nav button{white-space:nowrap;border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:7px 14px;border-radius:99px;cursor:pointer;font:inherit}
+nav button.on{background:var(--ac);color:var(--on);border-color:var(--ac);box-shadow:0 0 14px rgba(90,209,255,.45)}
+main{padding:0 16px 90px;max-width:1000px;margin:auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-bottom:12px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.h{color:var(--mut);font-size:13px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.v{font-size:26px;font-weight:600}.v small{font-size:13px;color:var(--mut);margin-left:4px;font-weight:400}
+.dot{width:11px;height:11px;border-radius:50%;display:inline-block;flex:none}
+.ch{width:100%;height:90px;display:block;margin-top:8px}
+.btn{background:var(--ac);font-weight:600;color:var(--on);border:0;padding:9px 15px;border-radius:8px;cursor:pointer;font:inherit}
+.mis{cursor:pointer}.mis:hover{border-color:var(--ac);box-shadow:0 0 16px rgba(90,209,255,.25)}
+.banner{padding:14px 16px;border-radius:12px;margin-bottom:12px;color:#07102a;font-weight:600;box-shadow:0 0 22px rgba(139,109,255,.25)}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:6px 8px;border-bottom:1px solid var(--bd);text-align:right;white-space:nowrap}th:first-child,td:first-child{text-align:left}
+.sc{overflow-x:auto}
+canvas{width:100%;height:80px;display:block}
+label{display:block;margin:8px 0 2px;font-size:14px}input[type=range]{width:100%;accent-color:var(--ac)}
+.note{color:var(--mut);font-size:12px;margin:14px 0}
+#login{max-width:380px;margin:12vh auto;padding:0 16px}
+#login button{display:block;width:100%;margin-top:10px}
+#fab{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom))}
+#bot{background:#101840;position:fixed;right:14px;bottom:calc(64px + env(safe-area-inset-bottom));width:min(340px,calc(100% - 28px));display:none;box-shadow:0 8px 30px #0005}
+#msgs{height:230px;overflow-y:auto;font-size:14px}#msgs p{margin:6px 0;padding:7px 10px;border-radius:10px;background:#0c1233}#msgs p.me{background:var(--ac);color:var(--on);margin-left:30px}
+.al{padding:9px 12px;border-radius:8px;margin-bottom:8px;color:#07102a;font-weight:600;font-size:14px}
+.hrt{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:8px}
+#hs{width:170px;flex:none}
+#hs g.b{transform-origin:100px 100px;animation:lat var(--bt,1s) ease-in-out infinite}
+@keyframes lat{0%,100%{transform:scale(1)}12%{transform:scale(1.06)}}
+@media(prefers-reduced-motion:reduce){#hs g.b{animation:none}}
+.orb{width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffd9a0,#ff7a59 55%,#7c5cff);display:inline-block;vertical-align:-3px;margin-right:8px;box-shadow:0 0 14px rgba(139,109,255,.7)}
+.face{display:inline-flex;vertical-align:middle;line-height:0;margin:0 4px}
+.fr{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.fp{display:flex;gap:8px;margin:6px 0 10px}
+.fp button{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font:inherit;line-height:1.1;color:var(--tx);background:rgba(10,16,48,.6);border:1px solid var(--bd);border-radius:14px;padding:8px 4px;cursor:pointer;transition:transform .15s,border-color .15s,background .15s}
+.fp button small{font-size:11px;color:var(--mut)}.fp button:hover{border-color:var(--ac)}
+.fp button.on{border-color:var(--ac);background:rgba(90,209,255,.16);transform:scale(1.07);box-shadow:0 0 14px rgba(90,209,255,.35)}
+.fp button:focus-visible,.btn:focus-visible,nav button:focus-visible,.ph:focus-visible,#login .cam:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.cond{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;background:rgba(10,16,48,.6);border:1px solid var(--bd);margin:8px 0}
+#login .pf{display:flex;align-items:center;gap:14px;text-align:left;padding:10px 12px;background:rgba(10,16,48,.6);color:var(--tx);border:1px solid var(--bd);border-radius:14px;font-weight:400;transition:border-color .15s,box-shadow .15s}
+#login .pf:hover{border-color:var(--ac);box-shadow:0 0 14px rgba(90,209,255,.3)}
+#login .pf b{display:block;font-weight:600}#login .pf small{color:var(--mut);font-size:13px}
+.pr{position:relative;margin-top:10px}#login .pr .pf{margin-top:0;padding-right:84px}
+.pa{position:absolute;right:12px;top:50%;transform:translateY(-50%);display:flex;gap:6px}
+#login .cam{width:30px;height:30px;margin:0;padding:0;display:grid;place-items:center;border-radius:50%;background:rgba(90,209,255,.14);color:var(--ac);border:1px solid var(--bd);font-size:16px;line-height:1}
+#login .cam:hover{border-color:var(--ac)}
+.av{flex:none;border-radius:50%;display:block}.who-av{display:inline-block;vertical-align:middle;margin-right:8px}
+.ph{padding:0;margin:0;border:0;background:none;border-radius:50%;cursor:pointer;display:block;position:relative}.ph:hover{box-shadow:0 0 0 2px var(--ac)}
+.zl{flex:1;min-width:200px;font-size:14px}.zl div{margin:6px 0;display:flex;gap:8px;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin-top:6px}.seg button{border:0;background:var(--card);color:var(--tx);padding:6px 12px;cursor:pointer;font:inherit}.seg button.on{background:var(--ac);color:var(--on)}
+.bd{background:var(--ko);color:#07102a;border-radius:99px;padding:0 6px;font-size:12px;margin-left:4px}
+.mt{height:6px;background:var(--bd);border-radius:3px;overflow:hidden;margin-top:4px;min-width:70px}.mt i{display:block;height:100%}
+.sb{display:flex;height:18px;border-radius:6px;overflow:hidden;margin:10px 0}.sb i{display:block}
+.lg{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px}.lg span:before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--c);margin-right:6px}
+details{margin-top:12px;font-size:14px}summary{cursor:pointer;font-weight:600}details td,details th{white-space:normal;text-align:left}.sbtn{padding:4px 10px}.btn[disabled]{opacity:.5;cursor:not-allowed}
+.dn{background:color-mix(in srgb,var(--ok) 14%,transparent);border-radius:6px;padding:2px 6px}.pt{font-size:12px;border:1px solid var(--wa);border-radius:99px;padding:0 6px;white-space:nowrap}
+.st{position:fixed;pointer-events:none;z-index:50;font-size:16px;animation:stb .9s ease-out forwards}@keyframes stb{from{transform:translate(-50%,-50%) scale(.4);opacity:1}to{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.2) rotate(180deg);opacity:0}}@media(prefers-reduced-motion:reduce){.st{display:none}}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ac);color:var(--on);padding:8px 16px;border-radius:99px;font-weight:600;z-index:60;box-shadow:0 4px 16px #0004}#toast:empty{display:none}
+</style></head><body>
+<div id="login" class="card"><h1><i class="orb"></i>AETHER</h1><p class="note" style="margin:2px 0 0">Autonomous Environment &amp; Telemetry Health Evaluation Rig</p>
+<p class="note" style="margin-top:6px">Conectando a API en vivo (nasafasta.vercel.app)...</p>
+<div id="lg"></div></div>
+<div id="app" hidden>
+<header><h1><i class="orb"></i>AETHER</h1><div id="who"></div><div id="api-status" style="font-size:12px; color:var(--ok);">● API Vercel conectada</div></header>
+<nav id="nav"></nav><main id="view"></main>
+<button class="btn" id="fab" onclick="tb()">Bot Telegram</button>
+<div class="card" id="bot"><div class="h"><b id="bt">Bot simulator</b><span id="bs">authorized doctors only</span></div>
+<div id="msgs"></div><form onsubmit="return send(event)" style="display:flex;gap:6px;margin-top:8px"><input type="text" id="q" placeholder="How is John Doe" style="flex:1"><button class="btn">Send</button></form></div>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+const $=s=>document.querySelector(s),cl=v=>Math.max(1,Math.min(10,Math.round(v)));
+const mb=s=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+
+let apiLiveData = null;
+const P={'Ana Reyes':{age:38,seed:3,fc:64,fcd:2,sp:98,spd:.5,pas:116,an:8,and:5,ba:1,bone:.8,iop:1,rad:1,rr:3,st:0,hv:55,hvd:-3,s0:70,sd:5,r0:75,rdd:-5,sl0:86,sld:-2,re0:84,red:-2,rp0:14,rpd:.4,t0:36.5,td:.1},
+'John Doe':{age:45,seed:7,fc:74,fcd:22,sp:97,spd:4,pas:128,an:7,and:1,ba:6,bone:1.2,iop:5,rad:1.8,rr:10,st:1.2,hv:48,hvd:-22,s0:90,sd:160,r0:70,rdd:-50,sl0:82,sld:-22,re0:80,red:-28,rp0:14.5,rpd:3.5,t0:36.7,td:1},
+'Mei Tanaka':{age:34,seed:11,fc:62,fcd:1,sp:98,spd:.3,pas:112,an:8,and:0,ba:-1,bone:.7,iop:0,rad:.9,rr:3,st:0,hv:62,hvd:0,s0:55,sd:0,r0:85,rdd:0,sl0:88,sld:0,re0:86,red:0,rp0:13.5,rpd:0,t0:36.4,td:0}};
+const NAMES=Object.keys(P),DB={};
+
+// Carga inicial de datos base simulados
+for(const n in P){const p=P[n],r=mb(p.seed);DB[n]=[...Array(14)].map((_,i)=>{const t=i/13,e=()=>r()-.5;
+return{dia:i+1,fc:Math.round(p.fc+p.fcd*t+e()*4),rr:+(3+p.rr*t+e()*2).toFixed(1),st:+(p.st*t+e()*.1).toFixed(1),pas:Math.round(p.pas+e()*6+p.fcd/2*t),pad:Math.round(p.pas*.65+e()*4),sp:+(p.sp-p.spd*t+e()).toFixed(1),an:cl(p.an-p.and*t+e()*2),su:cl(7-p.and*t*.6+e()*2),hi:cl(8+e()*2),al:cl(7+e()*2-p.and*t*.3),ej:cl(7+e()*2-p.and*t*.5),hu:+(-.045*(i+1)*p.bone).toFixed(2),mu:+(-.06*(i+1)*p.bone).toFixed(2),pio:+(15+p.iop*t+e()).toFixed(1),ds:+(p.rad*(i+1)*.6).toFixed(1),ed:+(p.age+p.ba*t+e()*.4).toFixed(1)}})}
+const MC=(d,h)=>[['Stress/recovery balance',Math.min(1,d.rs/(d.rs+d.ss)*1.6),35],['HRV vs own baseline',Math.min(1,d.hv/h),25],['Sleep score',d.sl/100,25],['Readiness',d.rd/100,15]],
+RM=(d,h)=>cl(1+9*MC(d,h).reduce((a,x)=>a+x[1]*x[2]/100,0));
+for(const n in P){const p=P[n],r=mb(p.seed+100);DB[n].forEach((d,i)=>{const t=i/13,e=()=>r()-.5,g=(a,b,k)=>a+b*t+e()*k;
+d.hv=Math.round(g(p.hv,p.hvd,6));d.ss=Math.max(5,Math.round(g(p.s0,p.sd,24)));d.rs=Math.max(2,Math.round(g(p.r0,p.rdd,20)));d.en=Math.round(110+e()*30);d.rl=Math.round(140+e()*30);
+d.sl=Math.min(100,Math.max(30,Math.round(g(p.sl0,p.sld,8))));d.rd=Math.min(100,Math.max(30,Math.round(g(p.re0,p.red,8))));d.rsp=+g(p.rp0,p.rpd,.6).toFixed(1);
+d.tc=+g(p.t0,p.td,.3).toFixed(2);d.sk=+(d.tc-p.t0).toFixed(2);d.ma=RM(d,p.hv)})}
+
+// Función para conectar y obtener datos de la API de Vercel
+async function fetchVercelApi() {
+  try {
+    const res = await fetch('https://nasafasta.vercel.app/api/astronauts'); // Ajustar endpoint según Swagger si es necesario
+    if(!res.ok) throw new Error('Network response was not ok');
+    const data = await res.json();
+    apiLiveData = data;
+    
+    // Si la API devuelve un objeto de telemetría, actualizamos el último registro del astronauta activo
+    if(data) {
+      const currentAstronaut = sel || 'Ana Reyes';
+      if(DB[currentAstronaut] && DB[currentAstronaut].length > 0) {
+        const lastIdx = DB[currentAstronaut].length - 1;
+        if(data.frecuencia_cardiaca_lpm_fisio) DB[currentAstronaut][lastIdx].fc = data.frecuencia_cardiaca_lpm_fisio;
+        if(data.presion_sistolica_mmHg) DB[currentAstronaut][lastIdx].pas = data.presion_sistolica_mmHg;
+        if(data.presion_diastolica_mmHg) DB[currentAstronaut][lastIdx].pad = data.presion_diastolica_mmHg;
+        if(data.variabilidad_frecuencia_cardiaca_ms) DB[currentAstronaut][lastIdx].hv = data.variabilidad_frecuencia_cardiaca_ms;
+        if(data.rendimiento) DB[currentAstronaut][lastIdx].rd = Math.round(data.rendimiento * 10);
+        if(data.densidad_osea_g_cm2) DB[currentAstronaut][lastIdx].hu = parseFloat(((data.densidad_osea_g_cm2 - 1.2) * 10).toFixed(2));
+        if(data.afectar_afecto_positivo) DB[currentAstronaut][lastIdx].an = data.afectar_afecto_positivo;
+        
+        // Nuevas columnas dinámicas desde API
+        DB[currentAstronaut][lastIdx].volumen_sanguineo = data.volumen_sanguineo_L;
+        DB[currentAstronaut][lastIdx].vo2_max = data.vo2_max_ml_kg_min;
+        DB[currentAstronaut][lastIdx].cohesion_equipo = data.cohesion_equipo;
+        DB[currentAstronaut][lastIdx].carga_mental = data.carga_trabajo_mental;
+      }
+    }
+    const stEl = $('#api-status');
+    if(stEl) { stEl.textContent = '● API Vercel conectada (En vivo)'; stEl.style.color = 'var(--ok)'; }
+    draw();
+  } catch(e) {
+    console.warn('Usando respaldo local por error en API:', e);
+    const stEl = $('#api-status');
+    if(stEl) { stEl.textContent = '● Modo Local / API Simulada'; stEl.style.color = 'var(--wa)'; }
+  }
+}
+
+const UN={C:'°C',F:'°F',K:'K'},fT=c=>(TU=='F'?c*1.8+32:TU=='K'?c+273.15:c).toFixed(1)+' '+UN[TU],fD=c=>{const v=TU=='F'?c*1.8:c;return(v>0?'+':'')+v.toFixed(2)+' '+UN[TU]};
+const TC=(d,s)=>`<div class="card"><div class="h">Body temperature${dot(s)}</div><div class="v" style="font-size:20px">${fT(d.tc)}</div><div class="seg" role="group" aria-label="Temperature unit">${[['C','Celsius'],['F','Fahrenheit'],['K','Kelvin']].map(([u,t])=>`<button class="${u==TU?'on':''}" title="${t}" aria-pressed="${u==TU}" onclick="TU='${u}';draw()">${UN[u]}</button>`).join('')}</div></div>`;
+const STOCK=[['Acetaminophen 500 mg','Pain','tablets',90,30],['Ibuprofen 400 mg','Pain','tablets',28,40],['Aspirin 100 mg','Cardiac','tablets',70,20],['Nitroglycerin 0.4 mg','Cardiac','tablets',25,10],['Enoxaparin 40 mg','Anticoagulant','syringes',5,6],['Epinephrine 0.3 mg','Emergency','auto-injectors',3,4],['Promethazine 25 mg','Motion sickness','tablets',40,15],['Ondansetron 4 mg','Nausea','tablets',22,10],['Zolpidem 10 mg','Sleep','tablets',8,20],['Loratadine 10 mg','Allergy','tablets',60,20],['Pseudoephedrine 30 mg','Decongestant','tablets',45,20],['Amoxicillin-clavulanate 875 mg','Antibiotic','tablets',34,20],['Azithromycin 250 mg','Antibiotic','tablets',18,12],['Ciprofloxacin 500 mg','Antibiotic','tablets',9,14],['Omeprazole 20 mg','Gastro','capsules',50,20],['Loperamide 2 mg','Gastro','capsules',30,12]].map((m,i)=>({id:i,n:m[0],c:m[1],u:m[2],q:m[3],m:m[4],bc:'779000000'+String(i+1).padStart(4,'0')}));
+const MOV=[{t:'08:12',w:'Ana Reyes',n:'Ibuprofen 400 mg',d:-2,s:'scan'},{t:'09:40',w:'John Doe',n:'Promethazine 25 mg',d:-1,s:'scan'},{t:'10:05',w:'Mei Tanaka',n:'Zolpidem 10 mg',d:-1,s:'scan'}];
+const sv=m=>m.q<=0||m.q<=m.m/2?2:m.q<=m.m?1:0,SL=['OK','Low','Critical'],nL()=>STOCK.filter(m=>sv(m)).length;let SM='out',SMSG=null;
+const SC=()=>{const l=nL(),c=STOCK.filter(m=>sv(m)==2).length;return`<div class="card mis" onclick="go('Stock')"><div class="h">Stock${dot(c?2:l?1:0)}</div><div class="v" style="font-size:20px">${l} low</div><div class="h">of ${STOCK.length} medications</div></div>`};
+function mv(m,q,s){if(U.rol!='a')return;if(m.q+q<0){SMSG={e:1,t:`Not enough ${m.n}: only ${m.q} ${m.u} left`};return}m.q+=q;MOV.unshift({t:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),w:U.n,n:m.n,d:q,s});if(MOV.length>30)MOV.pop();SMSG={t:`${m.n}: ${q>0?'+':''}${q} → ${m.q} ${m.u} left${sv(m)?' · '+SL[sv(m)].toLowerCase()+' stock':''}`}}
+function ap(c,q){const m=STOCK.find(x=>x.bc==c);if(!m)SMSG={e:1,t:'Barcode “'+c.replace(/</g,'&lt;')+'” not recognized'};else mv(m,SM=='out'?-q:q,'scan');draw();const i=$('#sc');i&&i.focus()}
+const qn=()=>Math.max(1,(+$('#sq').value|0)||1);
+function scan(e){e.preventDefault();ap($('#sc').value.trim(),qn());return false}
+const RX=[];let RMSG=null;
+function rx(e){e.preventDefault();if(U.rol!='m')return false;const m=STOCK[+$('#rm').value],q=Math.max(1,(+$('#rq').value|0)||1),t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});m.q+=q;RX.unshift({t,w:U.n,p:$('#rp').value,n:m.n,q,nt:$('#rn').value.trim().replace(/</g,'&lt;')});MOV.unshift({t,w:U.n,n:m.n,d:q,s:'prescription'});RMSG=`Prescription saved: +${q} ${m.u} of ${m.n} added to stock`;draw();return false}
+function sim(){ap(STOCK[+$('#sim').value].bc,qn())}
+function adj(i,d){mv(STOCK[i],d,'manual');draw()}
+const stockMsg=()=>{const l=STOCK.filter(m=>sv(m));return l.length?`<b>Low stock</b> (${l.length}/${STOCK.length})<br>`+l.map(m=>`${m.n}: ${m.q} ${m.u} (min ${m.m}) → ${SL[sv(m)]}`).join('<br>'):'All medications are above their minimum level.'};
+const CK={},PLAN={
+Mission:{k:'tc',w:1,t:.15,s:d=>S.Temp(d),why:'A raised or low body temperature can point to infection, dehydration or a cabin temperature problem.',a:['Measure again in 30 minutes, at rest','Drink water, rest, and check the cabin temperature and ventilation','Adjust your clothing layers to the cabin temperature'],call:'Call the flight surgeon if your temperature reaches 38.0 °C (100.4 °F, 311.15 K) or you feel unwell.',med:['Acetaminophen','Ibuprofen'],src:'standard clinical thresholds. Fever reducers only on the flight surgeon’s advice.'},
+Pulse:{k:'fc',w:1,t:3,s:d=>Math.max(S.Pulse(d),S.Pressure(d)),why:'Weightlessness shifts fluid toward the head and deconditions the heart. Stress, dehydration and lack of exercise push heart rate and blood pressure up.',a:['Rest and do 5 minutes of slow breathing, then measure again','Drink water and skip caffeine and stimulants until your heart rate is below 90 bpm','Do the scheduled aerobic session (treadmill or cycle) only if rate and rhythm are stable','Check for clot signs: swelling, pain or redness in a leg or the neck, or sudden shortness of breath'],call:'Call the flight surgeon immediately for chest pain, fainting, ST deviation of 1 mm or more, an irregular rhythm or any sign of a clot. Never start blood thinners on your own.',med:['Aspirin','Nitroglycerin','Enoxaparin'],src:'NASA cardiovascular health program; NASA working group on venous thromboembolism in astronauts (2024); ISS jugular vein thrombosis case treated with enoxaparin, then oral anticoagulants (NEJM, 2020).'},
+Breath:{k:'sp',w:-1,t:.5,s:d=>S.Breath(d),why:'Low saturation on a station can come from the cabin air (high CO2, poor ventilation), or from a lung or clot problem.',a:['Measure seated at rest, with warm hands','Check the CO2 reading in your module and move to a well-ventilated area if it is high','Take 10 slow deep breaths and measure again after 5 minutes'],call:'Call the flight surgeon if SpO2 stays below 92%, or below 95% together with a high heart rate or chest pain.',src:'NASA fatigue countermeasures (reducing ambient CO2); NASA venous thromboembolism working group.'},
+Wellbeing:{k:'an',w:-1,t:.7,s:d=>S.Wellbeing(d),why:'Poor sleep, a disrupted day-night cycle (16 sunrises a day), isolation and workload drive low mood and fatigue.',a:['Keep fixed sleep and wake times','In the evening use blue-depleted light and the blue-blocking night glasses; after waking, use blue-enriched light','Use an eye mask and ear plugs in your crew quarters','Eat full meals on schedule and complete your exercise session','Book a private call with behavioral health support or family if your mood is low'],call:'Tell the flight surgeon if your mood stays low for 3 days, you cannot sleep for 2 nights, or you have thoughts of harming yourself.',med:['Zolpidem'],src:'NASA ISS fatigue and sleep countermeasures: dynamic lighting, night glasses, melatonin and sleep medication only under flight surgeon guidance.'},
+Structure:{k:'hu',w:-1,t:.1,s:d=>S.Structure(d),why:'Without gravity bones lose mineral (about 1.5% a month in early ISS missions) and muscles shrink. Heavy resistive exercise, enough calories and vitamin D kept bone near preflight values in ISS crews. Adding alendronate gave extra protection, but only a flight surgeon can prescribe it.',a:['Do your resistive exercise session (squats, deadlifts, heel raises) at the planned load','Eat enough calories: losing body weight makes bone loss worse','Keep vitamin D and calcium intake on target','Log your session so the follow-up counts it'],call:'Tell the flight surgeon if bone loss passes −0.9%, muscle loss passes −1.5%, or you feel bone pain.',src:'NASA ISS studies of ARED exercise with nutrition and vitamin D, and of alendronate with exercise.'},
+Vision:{k:'pio',w:1,t:.5,s:d=>S.Vision(d),why:'The headward fluid shift raises pressure around the eye and brain and may cause SANS (swelling of the optic disc). The countermeasures below are still under study, so evidence is incomplete.',a:['Do your daily near and far vision check and write down any blur','Use the thigh cuffs or the lower body negative pressure device if one is on board and scheduled by the flight surgeon','Report any new headache, blur or distortion the same day'],call:'Call the flight surgeon the same day for blurred vision, new headaches or eye pressure above 21 mmHg.',src:'NASA and DLR SANS studies (lower body negative pressure, venoconstrictive thigh cuffs, tested in bed rest); review of SANS countermeasures, Prog Retin Eye Res 2025.'},
+Exposure:{s:d=>S.Exposure(d),why:'Radiation cannot be cured, only limited. The dose accumulates toward the 600 mSv career limit. Shielding helps against solar storms but only marginally against galactic cosmic rays.',a:['Rest and sleep in the best-shielded area','Go to the storm shelter when a solar particle event is announced','Wear your personal dosimeter and report the reading','Plan spacewalks and long exposures with mission control (ALARA: as low as reasonably achievable)'<<<<<<<,call:'Alert mission control if the daily dose rate goes above 1 mSv/day or a solar storm warning is active.',src:'NASA Human Research Program radiation protection (shielding, storm shelters, ALARA).'},
+Clock:{k:'ed',w:1,t:.4,s:(d,n)=>S.Clock(d,sel),why:'Biological age is an index, not a disease. It improves when your heart, sleep, bone and stress are under control.',a:['Follow your Pulse, Wellbeing and Structure care plans','Do your aerobic sessions (treadmill or cycle) as scheduled','Keep regular sleep and wake times'],call:'If the gap grows beyond 3 years, ask the flight surgeon to review all your care plans.',src:'NASA exercise countermeasures: about 600 min/week of exercise did not fully prevent deconditioning in ISS crews.'}};
+const PC=t=>{const p=PLAN[t],d=d0(),s=p.s(d),n=d.dia,A=U.rol=='a',H=DB[sel],
+tr=p.k?(x=>x>p.t?['Worsening',2]:x<-p.t?['Improving',0]:['Stable',s?1:0])((d[p.k]-H.at(-4)[p.k])*p.w):null,
+ms=(p.med||[]).map(x=>STOCK.find(m=>m.n.startsWith(x))).filter(Boolean);
+return`<div class="card" style="margin-top:12px"><div class="h"><b>Care plan · ${s?'action needed':'prevention routine'}</b>${dot(s)}</div><p style="margin:8px 0">${p.why}</p>`+
+p.a.map((x,j)=>{const a=CK[sel+t+j]||[];return`<label${a.includes(n)?' class="dn"':''}><input type="checkbox" id="c_${t+j}"${a.includes(n)?' checked':''}${A?'':' disabled'} onchange="ck('${t+j}')"> ${x} <span class="note">(${a.filter(y=>y>n-7).length}/7 days)</span> <b class="pt">${a.includes(n)?'★ +10':'+10'}</b></label>`}).join('')+
+(tr?`<p style="margin:10px 0 4px"><b>Follow-up</b> (${LBL[p.k]}, last 3 days): ${H.at(-4)[p.k]} → ${d[p.k]} · ${dot(tr[1])} ${tr[0]}</p>`:'')+
+(ms.length?`<p class="note" style="margin:8px 0">On board (only on the flight surgeon’s order): ${ms.map(m=>`${m.n} · ${m.q} ${m.u}${sv(m)?' (low)':''}`).join(' · ')}</p>`:'')+
+(s?`<div class="al" style="background:var(--ko);margin:8px 0 0">${p.call}</div>`:`<p class="note" style="margin:8px 0 0"><b>When to call:</b> ${p.call}</p>`)+`<p class="note" style="margin:8px 0 0">Basis: ${p.src}</p></div>`};
+const ACT=()=>{const d=d0(),l=Object.keys(PLAN).filter(k=>k!='Mission'&&PLAN[k].s(d)>0);return`<div class="card" style="margin-top:12px"><div class="h"><b>Care plans needing attention</b></div><div style="margin-top:8px">${l.length?l.map(k=>`<button class="btn sbtn" onclick="go('${k}')">${k}</button>`).join(' '):'None right now. Keep up the prevention routines in each tab.'}</div></div>`};
+const REQ=[],CI={},LNm=['Cadet','Pilot','Navigator','Specialist','Commander','Legend'],LN=p=>LNm[Math.min(5,Math.floor(p/200))],RW=[['Favorite meal from the food system',150],['15-minute extra video call with family',200],['Pick the music or movie for crew night',100],['30 minutes of extra window time',120],['Choose the crew’s Sunday dinner',250]];let SND=true,AC;
+const PT=n=>{let p=0;for(const t in PLAN){const a=PLAN[t].a,ds={};a.forEach((x,j)=>(CK[n+t+j]||[]).forEach(d=>{p+=10;ds[d]=(ds[d]||0)+1}));for(const d in ds)if(ds[d]==a.length)p+=20}return p+(CI[n]||[]).length*15},
+SP=n=>PT(n)-REQ.filter(r=>r.w==n&&r.st!='declined').reduce((a,r)=>a+r.c,0),
+SK=n=>{const ds=new Set();for(const t in PLAN)PLAN[t].a.forEach((x,j)=>(CK[n+t+j]||[]).forEach(d=>ds.add(d)));let d=DB[n].at(-1).dia,s=0;if(!ds.has(d))d--;while(ds.has(d)){s++;d--}return s};
+NAMES.forEach((n,k)=>{const r=mb(P[n].seed+200),pr=[.7,.35,.6][k];for(const t in PLAN)PLAN[t].a.forEach((x,j)=>{for(let d=1;d<=13;d++)if(r()<pr)(CK[n+t+j]=CK[n+t+j]||[]).push(d)});CI[n]=[...Array(13)].map((_,i)=>i+1).filter(()=>r()<pr)});
+function snd(big){if(!SND)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const t=AC.currentTime;(big?[523,659,784,1047]:[784,1047]).forEach((f,i)=>{const o=AC.createOscillator(),g=AC.createGain(),s=t+i*.09;o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(.0001,s);g.gain.exponentialRampToValueAtTime(.18,s+.02);g.gain.exponentialRampToValueAtTime(.0001,s+.25);o.connect(g);g.connect(AC.destination);o.start(s);o.stop(s+.3)})}catch(e){}}
+function toast(t){const e=$('#toast');e.textContent=t;clearTimeout(toast.h);toast.h=setTimeout(()=>e.textContent='',2200)}
+function burst(id,txt,big){const e=$('#c_'+id);if(e&&!matchMedia('(prefers-reduced-motion:reduce)').matches){const r=e.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2,n=big?18:8;for(let i=0;i<n;i++){const s=document.createElement('i'),a=Math.PI*2*i/n,k=(big?90:55)+Math.random()*30;s.className='st';s.textContent='★';s.style.cssText=`left:${x}px;top:${y}px;--dx:${Math.cos(a)*k}px;--dy:${Math.sin(a)*k}px;color:${['#f5b301','#ffd84d','#ff9f1c'][i%3]}`;document.body.append(s);setTimeout(()=>s.remove(),900)}}toast(txt)}
+function ck(i){if(U.rol!='a')return;const a=CK[sel+i]||(CK[sel+i]=[];),n=d0().dia,x=a.indexOf(n),t=i.replace(/\d+$/,''),p0=PT(sel);x<0?a.push(n):a.splice(x,1);const on=x<0,done=on&&PLAN[t].a.every((_,j)=>(CK[sel+t+j]||[]).includes(n));draw();if(on){const p=PT(sel);burst(i,done?'Plan complete! +30 points':'+10 points',done);snd(done);if(LN(p)!=LN(p0))setTimeout(()=>{toast('Level up: '+LN(p));snd(1)},1300)}}
+function redeem(i){if(U.rol!='a'||SP(U.n)<RW[i][1])return;REQ.unshift({w:U.n,r:RW[i][0],c:RW[i][1],st:'pending',t:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})});draw();toast('Request sent to the flight surgeon');snd(1)}
+function decide(i,ok){if(U.rol!='m')return;REQ[i].st=ok?'approved':'declined';draw()}
+const LBL={dia:'Day',fc:'HR (bpm)',rr:'R-R irregularity (%)',st:'ST (mm)',pas:'Systolic',pad:'Diastolic',sp:'SpO2 (%)',an:'Mood (self-report)',su:'Sleep',hi:'Hygiene',al:'Nutrition',ej:'Exercise',hu:'Bone (%)',mu:'Muscle (%)',pio:'Eye pressure (mmHg)',ds:'Cumulative dose (mSv)',ed:'Biological age',hv:'HRV (ms)',ss:'Stressed (min)',rs:'Restored (min)',en:'Engaged (min)',rl:'Relaxed (min)',sl:'Sleep score',rd:'Readiness',rsp:'Resp. rate (/min)',tc:'Body temp (°C)',sk:'Skin temp dev. (°C)',ma:'Mood (ring est.)',volumen_sanguineo:'Vol. sanguíneo (L)',vo2_max:'VO2 Máx',cohesion_equipo:'Cohesión equipo',carga_mental:'Carga mental'};
+const MO=['M8 17.2c1.3-2.6 6.7-2.6 8 0','M8.5 16.4q3.5-1.8 7 0','M8.5 15.6h7','M8.5 14.4q3.5 2.2 7 0','M7.8 13.8c.9 3.8 7.5 3.8 8.4 0'],FC=['var(--ko)','var(--wa)','var(--mut)','var(--ac)','var(--ok)'],LB=['Very low','Low','Neutral','Good','Great'];
+const fs=(i,z=20)=>`<svg width="${z}" height="${z}" viewBox="0 0 24 24" fill="none" stroke="${FC[i]}" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><circle cx="9" cy="10" r=".6" fill="${FC[i]}"/><circle cx="15" cy="10" r=".6" fill="${FC[i]}"/><path d="${MO[i]}"/></svg>`;
+const FACES=LB.map((l,i)=>[fs(i,30),l]),SF=[fs(3,28),fs(2,28),fs(0,28)];
+const fi=v=>Math.min(4,Math.max(0,Math.floor((v-1)/2))),face=v=>`<span class="face" title="${LB[fi(v)]}">${fs(fi(v))}</span>`;
+const E=['Stable','Caution','Alert'],COL=['ok','wa','ko'],L=n=>DB[n].at(-1);
+const AL=d=>{const a=[],p=(z,s,t)=>a.push({z,s,t});
+d.fc>100?p('r',2,'Tachycardia: '+d.fc+' bpm'):d.fc>90?p('r',1,'Elevated heart rate: '+d.fc+' bpm'):d.fc<50?p('r',2,'Bradycardia: '+d.fc+' bpm'):0;
+d.rr>12?p('r',2,'Possible arrhythmia: irregular R-R intervals ('+d.rr+'%)'):d.rr>8?p('r',1,'Rhythm with R-R variation ('+d.rr+'%)'):0;
+d.st>=1?p('v',2,'ST deviation of '+d.st+' mm: possible ischemia'):d.st>.5?p('v',1,'Slight ST deviation ('+d.st+' mm)'):0;
+d.sp<95&&d.fc>90?p('p',d.sp<92?2:1,'Low SpO2 with high heart rate: watch for thrombosis or embolism risk'):0;
+return a};
+const S={
+Pulse:d=>Math.max(0,...AL(d).map(a=>a.s)),Pressure:d=>d.pas>=140||d.pad>=90||d.pas<90?2:d.pas>=130||d.pad>=85?1:0,
+Breath:d=>d.sp<92?2:d.sp<95?1:0,
+Temp:d=>d.tc>=38||d.tc<35.5?2:d.tc>=37.5||d.tc<36?1:0,Wellbeing:(d,n)=>{const v=(d.an+d.su)/2;return v<=3?2:v<=5?1:0},Ring:d=>Math.max(d.ma<=3?2:d.ma<=5?1:0,d.ss>=200?2:d.ss>=140?1:0),
+Structure:d=>d.hu<-.9||d.mu<-1.5?2:d.hu<-.6||d.mu<-.9?1:0,
+Vision:d=>d.pio>21?2:d.pio>18?1:0,
+Exposure:d=>{const r=d.ds/d.dia;return r>2?2:r>1?1:0},
+Clock:(d,n)=>{const x=d.ed-P[n].age;return x>5?2:x>3?1:0}};
+const TABS=['Mission','Pulse','Breath','Wellbeing','RING','Structure','Vision','Exposure','Clock','Points','Stock','Logbook'],tabs=()=>TABS.filter(t=>U.rol=='m'||t!='RING'&&t!='Logbook');
+let U,sel,tab='Mission',raf,TU='C';
+const dot=s=>`<i class="dot" style="background:var(--${COL[s]})" title="${E[s]}"></i>`;
+const K=(t,v,u,s)=>`<div class="card"><div class="h">${t}${s==null?'':dot(s)}</div><div class="v">${v}<small>${u||''}</small></div></div>`;
+function ch(v,c,min,max,lo,hi){const W=300,H=90,x=i=>i*W/(v.length-1),y=a=>H-(a-min)/(max-min)*H;
+const b=lo==null?'':`<rect x="0" y="${y(hi)}" width="${W}" height="${y(lo)-y(hi)}" fill="var(--ok)" opacity=".13"/>`;
+return`<svg viewBox="0 0 ${W} ${H}" class="ch" preserveAspectRatio="none">${b}<polyline fill="none" stroke="${c}" stroke-width="2" vector-effect="non-scaling-stroke" points="${v.map((a,i)=>x(i)+','+y(a)).join(' ')}"/></svg>`}
+const C=(t,k,min,max,lo,hi,s,f)=>`<div class="card"><div class="h">${t}<span>${f?face(L(sel)[k])+' ':''}${L(sel)[k]}${s==null?'':' '+dot(s)}</span></div>${ch(DB[sel].map(d=>d[k]||0),'var(--ac)',min,max,lo,hi)}</div>`;
+const AV={'Ana Reyes':{bg:'#3b2a8c',suit:'#8b6dff',skin:'#c68a62',hair:'#2a1a22',st:'long'},
+'John Doe':{bg:'#0f5f6b',suit:'#2ee6c8',skin:'#f0c3a0',hair:'#7a4a2a',st:'short'},
+'Mei Tanaka':{bg:'#7d2a5e',suit:'#ff8fb8',skin:'#f3d2b3',hair:'#14121c',st:'bob'},
+'Dr. Lucia Paz':{bg:'#1d3f8f',suit:'#f4f7ff',skin:'#a5694a',hair:'#3d3a46',st:'doc'}};
+const PH={};try{[...NAMES,'Dr. Lucia Paz'].forEach(n=>{const v=localStorage.getItem('aether_photo_'+n);if(v&&v.startsWith('data:image/'))PH[n]=v})}catch(e){}
+function foto(n,inp){const f=inp.files[0];if(!f||!/^image\//.test(f.type))return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas'),z=c.width=c.height=192,m=Math.min(im.width,im.height),g=c.getContext('2d');g.drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,z,z);PH[n]=c.toDataURL('image/jpeg',.85);try{localStorage.setItem('aether_photo_'+n,PH[n])}catch(e){}refrescar()};im.src=r.result};r.readAsDataURL(f);inp.value=''}
+function quitar(n){delete PH[n];try{localStorage.removeItem('aether_photo_'+n)}catch(e){}refrescar()}
+function refrescar(){$('#app').hidden?renderLg():draw()}
+const CAM='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-2.5h6L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>';
+function av(n,z=56){if(PH[n])return`<img class="av" src="${PH[n]}" width="${z}" height="${z}" alt="${n}" style="object-fit:cover">`;const a=AV[n],i=NAMES.indexOf(n)+'_'+z,eyes='<circle cx="28" cy="32" r="1.2" fill="#1b1230"/><circle cx="36" cy="32" r="1.2" fill="#1b1230"/><path d="M29 37q3 2.2 6 0" stroke="#1b1230" stroke-width="1.2" fill="none" stroke-linecap="round"/>';
+let g;
+if(a.st=='doc')g=`<path d="M6 64c0-12 10-17 26-17s26 5 26 17z" fill="${a.suit}"/><path d="M26 47l6 9 6-9" fill="${a.skin}"/><circle cx="32" cy="14" r="5" fill="${a.hair}"/><ellipse cx="32" cy="29" rx="10.5" ry="12" fill="${a.skin}"/><path d="M21 27c0-9 4-13 11-13s11 4 11 13c-5-3-17-3-22 0z" fill="${a.hair}"/>${eyes.replace(/cy="32"/g,'cy="30"').replace('M29 37','M29 35')}<path d="M44 53v6M41 56h6" stroke="#2ee6c8" stroke-width="2" stroke-linecap="round"/>`;
+else{const back=a.st=='long'?`<path d="M16 30c0-12 7-18 16-18s16 6 16 18v14H16z" fill="${a.hair}"/>`:a.st=='bob'?`<path d="M17 32c0-12 6-17 15-17s15 5 15 17v7H17z" fill="${a.hair}"/>`:'',
+front=a.st=='long'?`<path d="M21 26c3-8 19-8 22 0-6-3-16-3-22 0 z" fill="${a.hair}"/>`:a.st=='bob'?`<path d="M20 26c4-5 20-5 24 0v1H20 z" fill="${a.hair}"/>`:`<path d="M21 27c0-9 5-12 11-12s11 3 11 12c-5-3-17-3-22 0z" fill="${a.hair}"/>`;
+g=`<defs><clipPath id="k${i}"><circle cx="32" cy="30" r="16"/></clipPath></defs><path d="M8 64c0-13 10-18 24-18s24 5 24 18z" fill="${a.suit}"/><rect x="40" y="53" width="9" height="4" rx="1.5" fill="${a.bg}" opacity=".7"/><circle cx="32" cy="30" r="16" fill="#101a40"/><g clip-path="url(#k${i})">${back}<ellipse cx="32" cy="32" rx="10.5" ry="12" fill="${a.skin}"/>${front}${eyes}</g><circle cx="32" cy="30" r="16" fill="none" stroke="#eaeeff" stroke-width="3"/><path d="M21.5 22a12 12 0 0 1 7-5" stroke="#fff" stroke-opacity=".6" stroke-width="1.5" fill="none" stroke-linecap="round"/>`}
+return`<svg class="av" width="${z}" height="${z}" viewBox="0 0 64 64" role="img" aria-label="${n}"><circle cx="32" cy="32" r="32" fill="${a.bg}"/><g clip-path="circle(32px at 32px 32px)">${g}</g></svg>`}
+const entrar=(rol,n)=>{U={rol,n};sel=rol=='m'?NAMES[0]:n;$('#login').hidden=true;$('#app').hidden=false;tab='Mission';fetchVercelApi();};
+function renderLg(){const row=(n,sub,rol)=>`<div class="pr"><button class="btn pf" onclick="entrar('${rol}','${n}')">${av(n)}<span><b>${n}</b><small>${sub}</small></span></button><div class="pa"><button type="button" class="cam" onclick="this.nextElementSibling.click()" aria-label="Change photo of ${n}" title="Change photo">${CAM}</button><input type="file" accept="image/*" hidden onchange="foto('${n}',this)">${PH[n]?`<button type="button" class="cam" onclick="quitar('${n}')" aria-label="Remove photo of ${n}" title="Remove photo">×</button>`:''}</div></div>`;
+$('#lg').innerHTML=NAMES.map(n=>row(n,'Astronaut · '+P[n].age+' yrs','a')).join('')+row('Dr. Lucia Paz','Remote doctor','m')}
+renderLg();
+function go(t){tab=t;draw()}
+function draw(){cancelAnimationFrame(raf);if(!tabs().includes(tab))tab='Mission';
+$('#who').innerHTML=(U.rol=='m'?`Astronaut: <select onchange="sel=this.value;fetchVercelApi()">${NAMES.map(n=>`<option${n==sel?' selected':''}>${n}</option>`).join('')}</select> · `:'')+`<span class="who-av"><button type="button" class="ph" onclick="this.nextElementSibling.click()" aria-label="Change your photo" title="Change your photo">${av(U.n,32)}</button><input type="file" accept="image/*" hidden onchange="foto('${U.n}',this)"></span>${U.n} <button class="btn" style="padding:5px 10px;margin-left:6px" onclick="location.reload()">Sign out</button>`;
+$('#nav').innerHTML=tabs().map(t=>`<button class="${t==tab?'on':''}" onclick="go('${t}')">${t}${t=='Stock'&&nL()?`<span class="bd" title="Low stock">${nL()}</span>`:''}</button>`).join('');
+$('#view').innerHTML=V[tab]()+(tab=='Mission'?ACT():'')+(PLAN[tab]?PC(tab):'')+'<p class="note">Datos sincronizados con API Vercel (nasafasta.vercel.app). Herramienta de apoyo médico espacial.</p>';
+if(tab=='Pulse')ecg()}
+const d0=()=>L(sel);
+const V={
+Mission(){const d=d0(),st=Object.keys(S).filter(k=>U.rol=='m'||k!='Ring').map(k=>[k,S[k](d,sel)]),m=Math.max(...st.map(x=>x[1]));
+const val={Pulse:`${d.fc} bpm`,Pressure:`${d.pas}/${d.pad} mmHg`,Breath:`SpO2 ${d.sp}%`,Wellbeing:`${face(d.an)} Mood ${d.an}/10 (self)`,Ring:`${face(d.ma)} Est. mood ${d.ma}/10`,Temp:'',Structure:`Bone ${d.hu}%`,Vision:`${d.pio} mmHg`,Exposure:`${d.ds} mSv`,Clock:`${d.ed} yrs`};
+return`<div class="banner" style="background:var(--${COL[m]});display:flex;align-items:center;gap:10px">${av(sel,32)}<span>${sel} · day ${d.dia} · overall status: ${E[m]}</span></div><div class="grid">${st.map(([k,s])=>k=='Temp'?TC(d,s):`<div class="card mis" onclick="go('${k=='Pressure'?'Pulse':k=='Ring'?'RING':k}')"><div class="h">${k}${dot(s)}</div><div class="v" style="font-size:20px">${val[k]}</div><div class="h">${E[s]}</div></div>`).join('')}${SC()}</div>`},
+Pulse(){const d=d0(),A=AL(d),z=k=>Math.max(0,...A.filter(a=>a.z==k).map(a=>a.s)),f=A.some(a=>a.z=='p'),hz=(k,t,s)=>`<div>${dot(z(k))}<span><b>${t}</b>: ${s}</span></div>`,fl=k=>`var(--${COL[z(k)]})`;
+return(A.length?A.map(a=>`<div class="al" style="background:var(--${COL[a.s]})">${E[a.s]}: ${a.t}</div>`).join(''):`<div class="al" style="background:var(--ok)">No alerts: regular rhythm</div>`)+`<div class="grid">${K('Heart rate',d.fc,'bpm',S.Pulse(d))}${K('R-R irregularity',d.rr,'%')}${K('ST segment',d.st,'mm')}${K('Blood pressure',d.pas+'/'+d.pad,'mmHg',S.Pressure(d))}${K('Venous Doppler',f?'Abnormal':'Normal','')}</div>  
+<div class="card"><div class="h">Live electrocardiogram (simulated)<span>Instant HR: <b id="bpm">--</b> bpm</span></div><canvas id="ecg"></canvas></div>
+<div class="card" style="margin-top:12px"><div class="h">Heart map</div><div class="hrt"><svg id="hs" viewBox="-10 -10 220 220" style="--bt:${(60/d.fc).toFixed(2)}s"><g class="b"><path d="M100 180C40 130 15 95 15 62C15 35 35 20 58 20C78 20 92 32 100 46C108 32 122 20 142 20C165 20 185 35 185 62C185 95 160 130 100 180Z" fill="var(--card)" stroke="var(--tx)" stroke-width="3"/><ellipse cx="60" cy="54" rx="30" ry="24" fill="${fl('r')}" opacity=".8"/><ellipse cx="140" cy="54" rx="30" ry="24" fill="${fl('r')}" opacity=".8"/><ellipse cx="128" cy="108" rx="32" ry="38" fill="${fl('v')}" opacity=".8"/><ellipse cx="76" cy="110" rx="24" ry="32" fill="var(--mut)" opacity=".25"/><rect x="90" y="0" width="20" height="40" rx="6" fill="${fl('p')}"/></g></svg><div class="zl">${hz('r','Atria and rhythm','tachycardia and arrhythmias')}${hz('v','Left ventricle','ST segment and ischemia')}${hz('p','Pulmonary artery','thrombosis or embolism risk')}</div></div></div>
+<div class="grid" style="margin-top:12px">${C('HR (14 days)','fc',50,110,55,90)}${C('R-R irregularity','rr',0,16,0,8)}</div>`},
+Breath(){const d=d0(),r=d.sp<95&&d.fc>90?'Caution':'Low';
+return`<div class="grid">${K('Oxygen saturation',d.sp,'%',S.Breath(d))}${K('Thromboembolic risk',r,'')}</div><div class="grid">${C('SpO2','sp',88,100,95,100)}</div>`},
+Wellbeing(){const d=d0(),F=[['an','Mood'],['su','Sleep'],['hi','Hygiene'],['al','Nutrition'],['ej','Exercise']];
+const sw=S.Wellbeing(d,sel),form=U.rol=='a'?`<div class="card" style="margin-bottom:12px"><h2 style="font-size:17px">Today’s check-in ${dot(sw)}</h2>  
+<div class="cond"><span class="face" style="margin:0">${SF[sw]}</span><span>Current condition: <b>${E[sw]}</b></span></div>
+<label>How do you feel today?</label><div class="fp" role="group" aria-label="Mood">${FACES.map((f,i)=>`<button type="button" class="${i==fi(d.an)?'on':''}" onclick="pk(${i*2+2})" aria-label="${f[1]}">${f[0]}<small>${f[1]}</small></button>`).join('')}</div>
+${F.map(([k,t])=>`<label class="fr"><span>${t}: <b id="o${k}">${d[k]}</b>/10</span><span id="f${k}">${face(d[k])}</span></label><input type="range" min="1" max="10" value="${d[k]}" id="r${k}" oninput="upd('${k}',this.value)">`).join('')}<br><button class="btn" style="margin-top:12px" onclick="save()">Save check-in</button></div>`:`<div class="cond"><span class="face" style="margin:0">${SF[sw]}</span><span>${sel}’s condition: <b>${E[sw]}</b> · mood ${face(d.an)} ${d.an}/10</span></div><p class="note">Each astronaut submits their own daily check-in.</p>`;
+return form+`<p class="note">Self-reported by the astronaut.${U.rol=='m'?' The ring’s automatic estimate is in the RING tab.':''}</p><div class="grid">${F.map(([k,t])=>C(t,k,0,10,null,null,k=='an'?S.Wellbeing(d,sel):null,1)).join('')}</div>`},
+Structure(){const d=d0();return`<div class="grid">${K('Bone density',d.hu,'%',S.Structure(d))}${K('Muscle mass',d.mu,'%')}${K('Vol. sanguíneo',d.volumen_sanguineo||5.0,'L')}${K('VO2 Máx',d.vo2_max||42,'ml/kg/min')}</div><div class="grid">${C('Bone (%)','hu',-2,0)}${C('Muscle (%)','mu',-3,0)}${C('Resistive exercise','ej',0,10)}</div>`},
+Vision(){const d=d0();return`<div class="grid">${K('Eye pressure',d.pio,'mmHg',S.Vision(d))}${K('Carga mental',d.carga_mental||6.5,'/10')}${K('Cohesión equipo',d.cohesion_equipo||8,'/10')}</div><div class="grid">${C('Eye pressure','pio',10,24,10,18)}</div>`},
+Exposure(){const d=d0();return`<div class="grid">${K('Cumulative dose',d.ds,'mSv',S.Exposure(d))}${K('Daily rate',(d.ds/d.dia).toFixed(2),'mSv/day')}${K('Of career limit (600 mSv)',(d.ds/6).toFixed(1),'%')}</div><div class="grid">${C('Cumulative dose','ds',0,30)}</div>`},
+Clock(){const d=d0(),x=(d.ed-P[sel].age).toFixed(1);return`<div class="grid">${K('Chronological age',P[sel].age,'yrs')}${K('Estimated biological age',d.ed,'yrs',S.Clock(d,sel))}${K('Difference',x,'yrs')}</div><div class="grid">${C('Biological age','ed',30,55)}</div><p class="note">Exploratory index computed from resting heart rate, heart rate variability and bone mass.</p>`},
+RING(){const d=d0(),h0=P[sel].hv,s=S.Ring(d,sel),R14=DB[sel].slice(-14),q=R14.reduce((a,x)=>a+Math.min(1,x.rs/(x.rs+x.ss)*1.6)*.5+x.sl*.003+x.rd*.002,0)/R14.length,
+RL=['Limited','Adequate','Solid','Strong','Exceptional'][q<.4?0:q<.55?1:q<.7?2:q<.85?3:4],T=d.ss+d.en+d.rl+d.rs,Z=[['Stressed',d.ss,'ko'],['Engaged',d.en,'wa'],['Relaxed',d.rl,'ac'],['Restored',d.rs,'ok']];
+return(s?`<div class="al" style="background:var(--${COL[s]})">${E[s]}: ${d.ss} min stressed vs ${d.rs} min restored today · estimated mood ${d.ma}/10</div>`:'')+`<p class="note" style="margin-top:0">Oura Ring 4 worn by ${sel} · simulated values · needs continuous day and night wear</p>  
+<div class="grid">${K('Estimated mood',face(d.ma)+d.ma,'/10',s)}${K('Stressed today',d.ss,'min')}${K('Restored today',d.rs,'min')}${K('Resilience (14 d)',RL,'')}${K('Readiness',d.rd,'/100')}${K('Sleep score',d.sl,'/100')}${K('HRV',d.hv,'ms')}${K('Respiratory rate',d.rsp,'/min')}${K('Skin temp. vs baseline',fD(d.sk),'')}</div>
+<div class="card" style="margin-bottom:12px"><div class="h"><b>Daytime stress zones</b><span>awake and still</span></div><div class="sb" role="img" aria-label="Stress zones of the day">${Z.map(([n,v,c])=>`<i style="width:${v/T*100}%;background:var(--${c})"></i>`).join('')}</div><div class="lg">${Z.map(([n,v,c])=>`<span style="--c:var(--${c})">${n}: <b>${v} min</b></span>`).join('')}</div></div>
+<div class="card" style="margin-bottom:12px"><div class="h"><b>How the estimated mood is built</b><span>ring ${d.ma}/10 · self-report ${d.an}/10</span></div>${MC(d,h0).map(([n,v,w])=>`<div style="margin:8px 0"><div class="h"><span>${n} (weight ${w}%)</span><b>${Math.round(v*100)}%</b></div><div class="mt"><i style="width:${v*100}%;background:var(--ac)"></i></div></div>`).join('')}${Math.abs(d.ma-d.an)>=3?`<div class="al" style="background:var(--wa);margin:10px 0 0">Large gap between the ring’s estimate and the self-reported mood: worth a conversation.</div>`:''}</div>
+<div class="grid">${C('Mood (ring estimate)','ma',0,10,null,null,null,1)}${C('Mood (self-report)','an',0,10,null,null,null,1)}${C('HRV (ms)','hv',10,80)}${C('Stressed minutes','ss',0,300,0,120)}${C('Sleep score','sl',30,100,70,100)}${C('Readiness','rd',30,100,70,100)}${C('Skin temp. deviation (°C)','sk',-1,1.5,-.5,.5)}</div>
+<details class="card"><summary>What the ring measures and how it infers stress</summary>  
+<div class="sc"><table><tr><th>Signal</th><th>Sensor</th><th>Use</th></tr>  
+<tr><td>Heart rate, HRV</td><td>Green + infrared LEDs (PPG, 18 paths)</td><td>24/7; HRV is the main stress marker</td></tr>  
+<tr><td>Blood oxygen, respiration</td><td>Red + infrared LEDs</td><td>Measured during sleep</td></tr>  
+<tr><td>Skin temperature</td><td>Digital temperature sensor</td><td>Deviation from personal baseline</td></tr>  
+<tr><td>Movement</td><td>Accelerometer</td><td>Activity, sleep, and pausing stress analysis during exercise</td></tr></table></div>
+<p><b>Daytime Stress.</b> While awake and still, it compares HRV, heart rate, motion and finger skin temperature with the person’s own baseline. Lower HRV, faster heart rate and cooler fingers (blood vessels narrow under stress) point to stress. Output zones: Stressed, Engaged, Relaxed, Restored.</p>
+<p><b>Resilience.</b> A 14-day balance of daytime stress, daytime recovery and night recovery (sleep score, resting heart rate, HRV balance, recovery index), from Limited to Exceptional. A 31-day Cumulative Stress view also exists.</p>
+<p><b>Mood.</b> The ring does not measure mood. It measures physiological stress, which is not the same as psychological stress: alcohol, sauna, illness or exercise also raise it. The estimated mood here is an AETHER proxy built from the four factors above, so treat it as an indicator and compare it with the manual check-in.</p>
+<p><b>Skin vs core temperature.</b> The ring reports skin-temperature deviation, not core temperature. The body temperature in Mission is the personal baseline plus that deviation (simulated).</p>
+<p class="note" style="margin:0">Designed for everyday life on Earth. Microgravity may shift HRV and temperature baselines, so interpret against the mission’s own baselines.</p></details>`},
+Points(){const A=U.rol=='a',n=A?U.n:sel,p=PT(n),sp=SP(n),lv=Math.min(5,Math.floor(p/200)),top=Math.max(1,...NAMES.map(PT));
+return(A?`<div class="grid">${K('Points to spend',sp,'★')}${K('Total earned',p,'pts')}${K('Level',LNm[lv],'')}${K('Streak',SK(n),'days')}</div><div class="card" style="margin-bottom:12px"><div class="h"><b>Next level</b><span>${lv<5?(lv+1)*200-p+' pts to go':'Max level'}</span></div><div class="mt"><i style="width:${lv<5?p%200/2:100}%;background:var(--ok)"></i></div><p class="note" style="margin:10px 0 0">+10 per care-plan task · +20 bonus when you finish a whole plan · +15 for the daily check-in. <button class="btn sbtn" onclick="SND=!SND;draw()">Sound: ${SND?'on':'off'}</button></p></div>`:'')+
+`<div class="card" style="margin-bottom:12px"><div class="h"><b>Crew ranking</b><span>friendly, tasks done only</span></div>${[...NAMES].sort((a,b)=>PT(b)-PT(a)).map((m,i)=>`<div style="margin:8px 0"><div class="h"><span>${i+1}. ${m} · ${LN(PT(m))} · ${SK(m)}-day streak</span><b>${PT(m)} pts</b></div><div class="mt"><i style="width:${PT(m)/top*100}%;background:var(--ac)"></i></div></div>`).join('')}<p class="note" style="margin:8px 0 0">Points reward what you do, never how your numbers look. Reporting a bad day costs nothing.</p></div>`+
+(A?`<div class="card" style="margin-bottom:12px"><div class="h"><b>Rewards</b><span>approved by the flight surgeon</span></div>${RW.map((r,i)=>`<div style="display:flex;gap:8px;align-items:center;justify-content:space-between;margin:8px 0"><span>${r[0]}<div class="note" style="margin:0">${r[1]} ★</div></span><button class="btn sbtn"${sp<r[1]?' disabled':''} onclick="redeem(${i})">Redeem</button></div>`).join('')}</div>`:'')+
+`<div class="card"><div class="h"><b>Reward requests</b></div>${REQ.some(r=>!A||r.w==U.n)?`<div class="sc"><table><tr><th>Time</th><th>Astronaut</th><th>Reward</th><th>Cost</th><th>Status</th>${A?'':'<th></th>'}</tr>${REQ.map((r,i)=>A&&r.w!=U.n?'':`<tr><td>${r.t}</td><td>${r.w}</td><td>${r.r}</td><td>${r.c}</td><td>${r.st}</td>${A?'':`<td>${r.st=='pending'?`<button class="btn sbtn" onclick="decide(${i},1)">Approve</button> <button class="btn sbtn" onclick="decide(${i},0)">Decline</button>`:''}</td>`}`).join('')}</table></div>`:'<p class="note">No requests yet.</p>'}</div>`},
+Stock(){const A=U.rol=='a',l=STOCK.filter(m=>sv(m)),c=l.filter(m=>sv(m)==2).length,rows=[...STOCK].sort((a,b)=>sv(b)-sv(a)||a.n.localeCompare(b.n));
+return(l.length?`<div class="al" role="alert" style="background:var(--${c?'ko':'wa'})">${l.length} medication${l.length>1?'s':''} below minimum${c?' ('+c+' critical)':''}: ${l.map(m=>m.n).join(', ')}</div>`:`<div class="al" style="background:var(--ok)">All medications are above their minimum level</div>`)+
+(A?`<div class="card" style="margin-bottom:12px"><div class="h"><b>Barcode scanner</b><span>keep the cursor in the field and scan</span></div><div class="seg" role="group" aria-label="Mode">${[['out','Withdraw'],['in','Restock']].map(([k,t])=>`<button class="${k==SM?'on':''}" aria-pressed="${k==SM}" onclick="SM='${k}';draw()">${t}</button>`).join('')}</div>  
+<form onsubmit="return scan(event)" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"><input type="text" id="sc" placeholder="Scan barcode…" autocomplete="off" inputmode="numeric" aria-label="Barcode" style="flex:1;min-width:180px"><input type="text" id="sq" value="1" inputmode="numeric" aria-label="Quantity" style="width:60px"><button class="btn">Apply</button></form>
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center"><select id="sim" aria-label="Medication to simulate">${STOCK.map(m=>`<option value="${m.id}">${m.n}</option>`).join('')}</select><button class="btn sbtn" onclick="sim()">Simulate scan</button></div>
+${SMSG?`<p class="note" role="status" style="color:var(--${SMSG.e?'ko':'ok'})">${SMSG.t}</p>`:''}</div>`:`<div class="card" style="margin-bottom:12px"><div class="h"><b>Prescriptions</b><span>doctor only · adds to stock</span></div><form onsubmit="return rx(event)" style="display:grid;gap:8px;margin-top:8px"><label style="margin:0">Medication<select id="rm" style="width:100%">${STOCK.map(m=>`<option value="${m.id}">${m.n}</option>`).join('')}</select></label><label style="margin:0">Quantity to add<input type="text" id="rq" value="10" inputmode="numeric" style="width:100%"></label><label style="margin:0">Prescribed for<select id="rp" style="width:100%">${NAMES.map(n=>`<option>${n}</option>`).join('')}</select></label><label style="margin:0">Notes<input type="text" id="rn" placeholder="Dose, duration, indication" style="width:100%"></label><button class="btn">Save prescription</button></form>${RMSG?`<p class="note" role="status" style="color:var(--ok)">${RMSG}</p>`:''}${RX.length?`<div class="sc"><table><tr><th>Time</th><th>Patient</th><th>Medication</th><th>Qty</th><th>Notes</th></tr>${RX.slice(0,8).map(x=>`<tr><td>${x.t}</td><td>${x.p}</td><td>${x.n}</td><td>+${x.q}</td><td>${x.nt||'-'}</td></tr>`).join('')}</table></div>`:''}</div\><p class="note" style="margin-top:0">Apart from prescriptions, the inventory is read-only here. Only the crew on board can scan or adjust it.</p>`)+
+`<div class="card"><div class="h"><b>Ship medication inventory</b><span>${STOCK.length} items</span></div><div class="sc"><table><tr><th>Medication</th><th>On hand</th><th>Minimum</th><th>Status</th>${A?'<th>Adjust</th>':''}</tr>${rows.map(m=>`<tr><td>${m.n}<div class="note" style="margin:0">${m.c} · ${m.bc}</div></td><td><b>${m.q}</b> ${m.u}<div class="mt"><i style="width:${Math.min(100,m.q/(m.m*2)*100)}%;background:var(--${COL[sv(m)]})"></i></div></td><td>${m.m}</td><td>${dot(sv(m))} ${m.q<=0?'Out':SL[sv(m)]}</td>${A?`<td><button class="btn sbtn" aria-label="Remove one ${m.n}" onclick="adj(${m.id},-1)">−</button> <button class="btn sbtn" aria-label="Add one ${m.n}" onclick="adj(${m.id},1)">+</button></td>`:''}</tr>`).join('')}</table></div></div>
+<div class="card" style="margin-top:12px"><div class="h"><b>Recent movements</b></div><div class="sc"><table><tr><th>Time</th><th>By</th><th>Medication</th><th>Qty</th><th>Source</th></tr>${MOV.slice(0,8).map(x=>`<tr><td>${x.t}</td><td>${x.w}</td><td>${x.n}</td><td>${x.d>0?'+':''}${x.d}</td><td>${x.s}</td></tr>`).join('')}</table></div></div>`},
+Logbook(){const k=Object.keys(L(sel));return`<div class="card"><div class="h"><b>History of ${sel}</b><button class="btn" onclick="dl()">Download Excel (CSV)</button></div><div class="sc"><table><tr>${k.map(x=>`<th>${LBL[x]||x}</th>`).join('')}</tr>${DB[sel].map(r=>`<tr>${k.map(x=>`<td>${r[x]!=null?r[x]:'-'}</td>`).join('')}</tr>`).join('')}</table></div></div>`}};
+function upd(k,v){$('#o'+k).textContent=v;$('#f'+k).innerHTML=face(+v);if(k=='an')document.querySelectorAll('.fp button').forEach((b,i)=>b.classList.toggle('on',i==fi(+v)))}
+function pk(v){$('#ran').value=v;upd('an',v)}
+function save(){const d={...d0(),dia:d0().dia+1};['an','su','hi','al','ej'].forEach(k=>d[k]=+$('#r'+k).value);(CI[sel]=CI[sel]||[]).push(d0().dia);DB[sel].push(d);draw();toast('Check-in saved: +15 points');snd()}
+function dl(){const D=DB[sel],k=Object.keys(D[0]),c=[k.map(x=>LBL[x]||x).join(',')].concat(D.map(r=>k.map(x=>r[x]!=null?r[x]:'').join(','))).join('
+'),a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+c],{type:'text/csv'}));a.download='aether_log_'+sel.replace(' ','_')+'.csv';a.click()}
+function ecg(){const c=$('#ecg'),g=c.getContext('2d'),d=d0(),W=c.width=c.clientWidth*2,H=c.height=160,irr=d.rr/100,gs=(p,m,s,a)=>a*Math.exp(-Math.pow((p-m)/s,2));
+const w=p=>gs(p,.15,.04,.15)+gs(p,.27,.012,-.12)+gs(p,.3,.015,1)+gs(p,.33,.014,-.25)+gs(p,.58,.06,.3)+(p>.35&&p<.5?d.st*.25:0);
+const m=Math.max(0,...AL(d).map(a=>a.s)),buf=Array(W).fill(H/2),col=getComputedStyle(document.body).getPropertyValue(m?'--'+COL[m]:'--ac');let x=0,pos=0,len=7200/d.fc;
+(function f(){for(let i=0;i<2;i++){buf[x]=H/2-w(pos/len)*60;x=(x+1)%W;if(++pos>=len){pos=0;len=7200/d.fc*(1+(Math.random()-.5)*4*irr);$('#bpm').textContent=Math.round(7200/len)}}
+g.clearRect(0,0,W,H);g.strokeStyle=col;g.lineWidth=2.5;g.beginPath();for(let i=0;i<W;i++){const y=buf[(x+i)%W];i?g.lineTo(i,y):g.moveTo(i,y)}g.stroke();raf=requestAnimationFrame(f)})()}
+function tb(){const b=$('#bot'),a=U.rol=='a';b.style.display=b.style.display=='block'?'none':'block';$('#bt').textContent=a?'Your personal assistant':'Bot simulator';$('#bs').textContent=a?'you only see your own data':'authorized doctors only';$('#q').placeholder=a?'How is my blood pressure?':'How is John Doe';if(!$('#msgs').children.length)say(a?'Hi, I am your assistant. Try: “How am I doing” or “How is my blood pressure”.':'Hi, I am the bot. Try: “How is John Doe” or “How is Ana Reyes’ blood pressure”.')}
+function say(t,me){const p=document.createElement('p');if(me)p.className='me';p.innerHTML=t;$('#msgs').append(p);$('#msgs').scrollTop=1e5}
+function send(e){e.preventDefault();const q=$('#q').value.trim();if(!q)return false;say(q.replace(/</g,'&lt;'),1);$('#q').value='';setTimeout(()=>say(reply(q)),350);return false}
+function reply(q){const t=q.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''),w=t.split(/\W+/),f=NAMES.find(n=>n.toLowerCase().split(' ').some(x=>w.includes(x))),me=U.rol=='a';
+if(/stock|medic|drug/.test(t))return stockMsg();
+if(me&&f&&f!=U.n)return'You can only view your own data.';
+const n=me?U.n:f;if(!n)return'Please include the astronaut’s name. E.g. “How is Mei Tanaka”';
+const d=L(n),h=(...k)=>k.some(x=>t.includes(x)),o=[],c=s=>me?'Your '+s:s[0].toUpperCase()+s.slice(1);
+if(h('pressure','tension'))o.push(`${c('blood pressure')}: ${d.pas}/${d.pad} mmHg → ${E[S.Pressure(d)]}`);
+if(h('heart','pulse','cardi','rhythm','ecg','arrhythm')){o.push(`${c('heart')}: HR ${d.fc} bpm · R-R irregularity ${d.rr}% · ST ${d.st} mm → ${E[S.Pulse(d)]}`);AL(d).forEach(a=>o.push(E[a.s]+': '+a.t))}
+if(h('oxygen','spo2','breath'))o.push(`${c('blood oxygen')} (SpO2): ${d.sp}% → ${E[S.Breath(d)]}`);
+if(h('mood','wellbeing','sleep'))o.push(`${c('mood')}: ${d.an}/10 · sleep ${d.su}/10 → ${E[S.Wellbeing(d,n)]}${me?'':' · ring estimate '+d.ma+'/10'}`);
+if(!me&&h('stress','ring','hrv'))o.push(`${c('stress')}: ${d.ss} min stressed · ${d.rs} min restored · HRV ${d.hv} ms → ${E[S.Ring(d)]}`);
+if(h('temperature','fever','temp'))o.push(`${c('body temperature')}: ${fT(d.tc)} → ${E[S.Temp(d)]}`);
+if(h('bone','muscle'))o.push(`${c('bone density')}: ${d.hu}% · muscle mass ${d.mu}% → ${E[S.Structure(d)]}`);
+if(h('eye','vision','ocular'))o.push(`${c('eye pressure')}: ${d.pio} mmHg → ${E[S.Vision(d)]}`);
+if(h('radiation','dose'))o.push(`${c('cumulative radiation dose')}: ${d.ds} mSv → ${E[S.Exposure(d)]}`);
+if(w.includes('age')||h('biological'))o.push(`${c('estimated biological age')}: ${d.ed} yrs (chronological ${P[n].age})`);
+if(!o.length)Object.keys(S).filter(k=>!me||k!='Ring').forEach(k=>o.push(`${k}: ${E[S[k](d,n)]}`));
+return`<b>${me?'Status actual':n}</b> · day ${d.dia}<br>`+o.join('<br>')}
+</script></body></html>
